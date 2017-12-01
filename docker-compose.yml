@@ -1,0 +1,29 @@
+version: '2'
+services:
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./master.cnf:/etc/mysql/conf.d/my.cnf
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      TZ: "Asia/Tokyo"
+  mysql-slave:
+    image: mysql:5.7
+    ports:
+      - '13306:3306'
+    depends_on:
+      - mysql
+    tmpfs: /var/lib/mysql
+    volumes:
+      - ./slave.cnf:/etc/mysql/conf.d/my.cnf
+      - ./start-slave.sh:/docker-entrypoint-initdb.d/start-slave.sh
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      TZ: "Asia/Tokyo"
+volumes:
+  mysql-data:
+    external:
+      name: mysql_volume
